@@ -1,0 +1,42 @@
+import pandas as pd
+
+def create_tables_from_csv(csv_file_path):
+    # Load the CSV file
+    books_df = pd.read_csv(csv_file_path)
+
+    # Creating the Author Table
+    author_table = books_df[['authorID', 'Author']].drop_duplicates()
+    author_table.columns = ['authorID', 'authorname']
+
+    # Creating the Written By Table
+    written_by_table = books_df[['Serial Number', 'authorID']]
+    written_by_table.columns = ['bookID', 'authorID']
+
+    # Creating the Publisher Table
+    publisher_table = books_df[['publisherID', 'publisherName']].drop_duplicates()
+    publisher_table.columns = ['publisherid', 'publishername']
+
+    # Creating the Books Table
+    books_table = books_df[['Serial Number', 'Title', 'Price', 'ISBN', 'Number of Pages', 'publisherID', 'Image URL']]
+    books_table.columns = ['bookid', 'title', 'price', 'isbn', 'pages', 'publisherId', 'imagesurl']
+
+    return author_table, written_by_table, publisher_table, books_table
+
+def save_tables_as_csv(author_table, written_by_table, publisher_table, books_table):
+    # Save each table to a CSV file
+    author_table.to_csv('FinalCSVTables/author_table.csv', index=False)
+    written_by_table.to_csv('FinalCSVTables/written_by_table.csv', index=False)
+    publisher_table.to_csv('FinalCSVTables/publisher_table.csv', index=False)
+    books_table.to_csv('FinalCSVTables/books_table.csv', index=False)
+
+# File path to the CSV
+csv_file_path = 'book_data_with_images_modified.csv'
+
+# Generate the tables
+author_table, written_by_table, publisher_table, books_table = create_tables_from_csv(csv_file_path)
+
+# Save the tables as CSV files
+save_tables_as_csv(author_table, written_by_table, publisher_table, books_table)
+
+# Display a message confirming the tables have been saved
+print("Tables saved as CSV files.")

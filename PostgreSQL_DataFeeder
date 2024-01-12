@@ -1,0 +1,49 @@
+import psycopg2
+import pandas as pd
+import os
+
+# Database credentials
+dbname = 'bookstore'
+user = os.environ['POSTGRESUSERNAME']
+password = os.environ['POSTGRESUSERNAME']
+host = 'your_host'
+
+# Paths to CSV files
+authors_csv ='FinalCSVTables/author_table.csv'
+written_by_csv ='FinalCSVTables/written_by_table.csv'
+publishers_csv ='FinalCSVTables/publisher_table.csv'
+books_csv ='FinalCSVTables/books_table.csv'
+
+conn = psycopg2.connect(dbname=dbname, user=user, password=password)
+cur = conn.cursor()
+try:
+    # Load and insert data for publishers
+    publishers_data = pd.read_csv(publishers_csv)
+    for _, row in publishers_data.iterrows():
+        cur.execute("INSERT INTO public.publishers (p_id, p_name) VALUES (%s, %s)", (row['publisherid'], row['publishername']))
+
+    # Load and insert data for authors
+    authors_data = pd.read_csv(authors_csv)
+    for _, row in authors_data.iterrows():
+        cur.execute("INSERT INTO public.authors (a_id, a_name) VALUES (%s, %s)", (row['authorID'], row['authorname']))
+
+    # Load and insert data for books
+    books_data = pd.read_csv(books_csv)
+    for _, row in books_data.iterrows():
+        cur.execute("INSERT INTO public.books (b_id, title, price, isbn, pages, p_id, url) VALUES (%s, %s, %s, %s, %s, %s, %s)", 
+                    (row['bookid'], row['title'], row['price'], row['isbn'], row['pages'], row['publisherId'], row['imagesurl']))
+
+    # Load and insert data for written_by
+    written_by_data = pd.read_csv(written_by_csv)
+    for _, row in written_by_data.iterrows():
+        cur.execute("INSERT INTO public.written_by (w_b_id, w_a_id) VALUES (%s, %s)", (row['bookID'], row['authorID']))
+
+except Exception as ex:
+    print(ex)
+    exit(1)
+
+
+# Commit changes and close the connection
+conn.commit()
+cur.close()
+conn.close()
